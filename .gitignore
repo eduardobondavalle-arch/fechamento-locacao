@@ -1,0 +1,26 @@
+# dependencies
+/node_modules
+
+# next
+/.next
+/out
+
+# testing
+/coverage
+/playwright-report
+/test-results
+
+# local Supabase CLI state
+/supabase/.temp
+
+# local environment
+.env
+.env.local
+.env.*.local
+
+# misc
+.DS_Store
+*.pem
+*.log
+*.tsbuildinfo
+next-env.d.ts
