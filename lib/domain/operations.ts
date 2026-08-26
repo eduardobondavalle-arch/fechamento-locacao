@@ -20,6 +20,19 @@ import {
   type CardDraftInput,
 } from "../validation/cards";
 
+export {
+  adjustCommissionAmount,
+  archiveCommissionRule,
+  createCommissionRule,
+  generateCommissions,
+  previewCommissionGeneration,
+  publishCommissionRule,
+  recalculateCommission,
+  simulateCommissionRule,
+  transitionCommissionStatus,
+  updateCommissionRule,
+} from "./commissions/operations";
+
 export class DomainError extends Error {
   constructor(message: string) {
     super(message);

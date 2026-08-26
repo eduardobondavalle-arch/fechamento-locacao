@@ -89,7 +89,7 @@ test("configura equipe, adiciona fechamento e mantém os dados após atualizar",
   await expect(page.getByText("Maria da Silva", { exact: true })).toBeVisible();
 
   await page.evaluate(() => {
-    const key = "fechamento-locacao:v3";
+    const key = "fechamento-locacao:v4";
     const data = JSON.parse(localStorage.getItem(key) ?? "null") as {
       lists: Array<{ id: string; slaHours: number | null }>;
       cards: Array<{ listId: string; enteredListAt: string }>;
@@ -193,4 +193,79 @@ test("rola o quadro automaticamente pelas duas bordas", async ({ page }) => {
   await expect
     .poll(() => board.evaluate((element) => element.scrollLeft))
     .toBeLessThan(scrollAfterRightEdge);
+});
+
+test("cria, simula, gera e paga uma comissão preservando o Kanban", async ({
+  page,
+}) => {
+  await resetLocalData(page);
+  await configureTeam(page);
+  await addClosing(page);
+  await page.getByRole("button", { name: "Fechar diálogo" }).click();
+
+  await page.getByRole("button", { name: "Comissionamento" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Comissionamento" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Regras de comissão" }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Nova regra" })
+    .click();
+  const builder = page.getByRole("dialog");
+  await builder.getByLabel("Nome da regra").fill("Comissão padrão de teste");
+  await builder.getByLabel("Valor da constante").fill("10");
+  await builder.getByRole("button", { name: "Salvar rascunho" }).click();
+
+  await page.getByRole("button", { name: "Regras de comissão" }).click();
+  const rules = page.getByRole("dialog");
+  await rules.getByRole("button", { name: "Publicar" }).click();
+  await expect(rules.getByText(/Publicada · v1/)).toBeVisible();
+  await rules.getByRole("button", { name: "Simular" }).click();
+  const simulator = page.getByRole("dialog");
+  await simulator.getByRole("button", { name: "Simular sem gerar" }).click();
+  await expect(simulator.getByText(/325,05/)).toBeVisible();
+  await simulator.getByRole("button", { name: "Fechar diálogo" }).click();
+
+  await page.getByRole("button", { name: "Calcular comissões" }).click();
+  const generation = page.getByRole("dialog");
+  await generation.getByRole("button", { name: "Gerar prévia" }).click();
+  await expect(generation.getByText(/325,05/)).toBeVisible();
+  await generation.getByRole("button", { name: "Confirmar geração" }).click();
+  await page.getByRole("tab", { name: "Comissões de locação" }).click();
+  await page
+    .getByRole("button", {
+      name: "Abrir comissões de Consultor Operacional",
+    })
+    .click();
+  const resultsTable = page.getByRole("table");
+  await expect(
+    resultsTable.getByText("Calculada", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Aprovar" }).click();
+  await expect(
+    resultsTable.getByText("Aprovada", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Marcar paga" }).click();
+  await expect(resultsTable.getByText("Paga", { exact: true })).toBeVisible();
+
+  await page.reload();
+  await page.getByRole("button", { name: "Comissionamento" }).click();
+  await page.getByRole("tab", { name: "Comissões de locação" }).click();
+  await page
+    .getByRole("button", {
+      name: "Abrir comissões de Consultor Operacional",
+    })
+    .click();
+  await expect(
+    page.getByRole("table").getByText("Paga", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Fechar diálogo" }).click();
+  await page.getByRole("button", { name: "Fechamentos" }).click();
+  await expect(page.getByText("Maria da Silva", { exact: true })).toBeVisible();
+  await expect(
+    page
+      .getByLabel("Quadro Kanban de fechamento de locação")
+      .locator("section"),
+  ).toHaveCount(14);
 });

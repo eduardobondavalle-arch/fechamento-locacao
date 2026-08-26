@@ -43,7 +43,7 @@ function cardInput(data: AppData, listId = initialLists[0].id) {
 describe("operações do quadro", () => {
   it("inicia sem pessoas, cards ou atividades fictícias", () => {
     const data = createInitialData();
-    expect(data.schemaVersion).toBe(3);
+    expect(data.schemaVersion).toBe(4);
     expect(data.profiles).toEqual([]);
     expect(data.cards).toEqual([]);
     expect(data.activities).toEqual([]);

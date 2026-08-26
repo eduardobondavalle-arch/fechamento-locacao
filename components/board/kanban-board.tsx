@@ -26,6 +26,7 @@ import { moveCard } from "@/lib/domain/operations";
 import { EMPTY_FILTERS, type CardFilters } from "@/lib/domain/types";
 import { useBoard } from "../providers/board-provider";
 import { CardDetailModal } from "../card-detail/card-detail-modal";
+import { CommissionPanel } from "../commissions/commission-panel";
 import { BoardSettingsPanel } from "./board-settings-panel";
 import { BoardToolbar } from "./board-toolbar";
 import { CardTile } from "./card-tile";
@@ -37,7 +38,9 @@ export function KanbanBoard() {
   const [filters, setFilters] = useState<CardFilters>(EMPTY_FILTERS);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
-  const [activeView, setActiveView] = useState<"board" | "settings">("board");
+  const [activeView, setActiveView] = useState<
+    "board" | "commissions" | "settings"
+  >("board");
   const [createClosingOpen, setCreateClosingOpen] = useState(false);
   const [slaNow, setSlaNow] = useState(() => Date.now());
   const boardScrollRef = useRef<HTMLDivElement>(null);
@@ -178,6 +181,8 @@ export function KanbanBoard() {
       <main className="min-h-0 flex-1">
         {activeView === "settings" ? (
           <BoardSettingsPanel />
+        ) : activeView === "commissions" ? (
+          <CommissionPanel />
         ) : (
           <DndContext
             sensors={sensors}

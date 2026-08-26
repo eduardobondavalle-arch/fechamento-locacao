@@ -14,6 +14,11 @@ export type SupabaseBoardSnapshot = {
   comments: Record<string, unknown>[];
   attachments: Record<string, unknown>[];
   activities: Record<string, unknown>[];
+  commissionRules: Record<string, unknown>[];
+  commissionRuleVersions: Record<string, unknown>[];
+  commissionCalculations: Record<string, unknown>[];
+  commissionStatusHistory: Record<string, unknown>[];
+  commissionAdjustments: Record<string, unknown>[];
 };
 
 /**
@@ -78,6 +83,31 @@ export class SupabaseDataAccess {
       .eq("board_id", boardId)
       .order("created_at", { ascending: false })
       .limit(1000);
+    const commissionRulesQuery = this.client
+      .from("commission_rules")
+      .select("*")
+      .eq("board_id", boardId)
+      .order("priority", { ascending: false });
+    const commissionRuleVersionsQuery = this.client
+      .from("commission_rule_versions")
+      .select("*")
+      .eq("board_id", boardId)
+      .order("version", { ascending: false });
+    const commissionCalculationsQuery = this.client
+      .from("commission_calculations")
+      .select("*")
+      .eq("board_id", boardId)
+      .order("calculated_at", { ascending: false });
+    const commissionStatusHistoryQuery = this.client
+      .from("commission_status_history")
+      .select("*")
+      .eq("board_id", boardId)
+      .order("created_at", { ascending: false });
+    const commissionAdjustmentsQuery = this.client
+      .from("commission_adjustments")
+      .select("*")
+      .eq("board_id", boardId)
+      .order("created_at", { ascending: false });
     const [
       board,
       lists,
@@ -87,6 +117,11 @@ export class SupabaseDataAccess {
       captors,
       customFields,
       activities,
+      commissionRules,
+      commissionRuleVersions,
+      commissionCalculations,
+      commissionStatusHistory,
+      commissionAdjustments,
     ] = await Promise.all([
       boardQuery,
       listsQuery,
@@ -96,6 +131,11 @@ export class SupabaseDataAccess {
       captorsQuery,
       customFieldsQuery,
       activitiesQuery,
+      commissionRulesQuery,
+      commissionRuleVersionsQuery,
+      commissionCalculationsQuery,
+      commissionStatusHistoryQuery,
+      commissionAdjustmentsQuery,
     ]);
     for (const result of [
       board,
@@ -106,6 +146,11 @@ export class SupabaseDataAccess {
       captors,
       customFields,
       activities,
+      commissionRules,
+      commissionRuleVersions,
+      commissionCalculations,
+      commissionStatusHistory,
+      commissionAdjustments,
     ])
       if (result.error) throw result.error;
     const cardIds = (cards.data ?? []).map((card) => String(card.id));
@@ -124,6 +169,11 @@ export class SupabaseDataAccess {
         comments: [],
         attachments: [],
         activities: activities.data ?? [],
+        commissionRules: commissionRules.data ?? [],
+        commissionRuleVersions: commissionRuleVersions.data ?? [],
+        commissionCalculations: commissionCalculations.data ?? [],
+        commissionStatusHistory: commissionStatusHistory.data ?? [],
+        commissionAdjustments: commissionAdjustments.data ?? [],
       };
     }
     const [checklists, comments, attachments, cardFieldValues] =
@@ -175,6 +225,11 @@ export class SupabaseDataAccess {
       comments: comments.data ?? [],
       attachments: attachments.data ?? [],
       activities: activities.data ?? [],
+      commissionRules: commissionRules.data ?? [],
+      commissionRuleVersions: commissionRuleVersions.data ?? [],
+      commissionCalculations: commissionCalculations.data ?? [],
+      commissionStatusHistory: commissionStatusHistory.data ?? [],
+      commissionAdjustments: commissionAdjustments.data ?? [],
     };
   }
 
@@ -189,6 +244,75 @@ export class SupabaseDataAccess {
       target_list_id: input.listId,
       target_position: input.position,
       expected_version: input.expectedVersion,
+    });
+    if (error) throw error;
+  }
+
+  async transitionCommissionStatus(input: {
+    calculationId: string;
+    status: string;
+    expectedUpdatedAt: string;
+    reason?: string | null;
+  }): Promise<void> {
+    const { error } = await this.client.rpc("transition_commission_status", {
+      target_calculation_id: input.calculationId,
+      target_status: input.status,
+      expected_updated_at: input.expectedUpdatedAt,
+      transition_reason: input.reason ?? null,
+    });
+    if (error) throw error;
+  }
+
+  async createCommissionCalculation(input: {
+    boardId: string;
+    cardId: string;
+    beneficiaryId: string;
+    beneficiaryName: string;
+    beneficiaryRole: string;
+    ruleId: string;
+    ruleVersionId: string;
+    ruleVersion: number;
+    baseValueCents: number;
+    amountCents: number;
+    idempotencyKey: string;
+    revision: number;
+    supersedesCalculationId?: string | null;
+    snapshot: Record<string, unknown>;
+  }): Promise<string> {
+    const { data, error } = await this.client.rpc(
+      "create_commission_calculation",
+      {
+        target_board_id: input.boardId,
+        target_card_id: input.cardId,
+        target_beneficiary_id: input.beneficiaryId,
+        target_beneficiary_name: input.beneficiaryName,
+        target_beneficiary_role: input.beneficiaryRole,
+        target_rule_id: input.ruleId,
+        target_rule_version_id: input.ruleVersionId,
+        target_rule_version: input.ruleVersion,
+        target_base_value_cents: input.baseValueCents,
+        target_amount_cents: input.amountCents,
+        target_idempotency_key: input.idempotencyKey,
+        target_revision: input.revision,
+        target_supersedes_calculation_id: input.supersedesCalculationId ?? null,
+        target_snapshot: input.snapshot,
+      },
+    );
+    if (error) throw error;
+    return String(data);
+  }
+
+  async adjustCommission(input: {
+    calculationId: string;
+    amountCents: number;
+    expectedUpdatedAt: string;
+    reason: string;
+  }): Promise<void> {
+    const { error } = await this.client.rpc("adjust_commission_amount", {
+      target_calculation_id: input.calculationId,
+      target_amount_cents: input.amountCents,
+      expected_updated_at: input.expectedUpdatedAt,
+      adjustment_reason: input.reason,
     });
     if (error) throw error;
   }

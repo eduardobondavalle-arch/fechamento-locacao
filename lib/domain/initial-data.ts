@@ -33,7 +33,7 @@ export const initialLists: BoardList[] = listNames.map((name, index) => ({
 
 export function createInitialData(): AppData {
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     currentUserId: EXTERNAL_SESSION_ID,
     profiles: [],
     boards: [
@@ -74,5 +74,10 @@ export function createInitialData(): AppData {
     comments: [],
     attachments: [],
     activities: [],
+    commissionRules: [],
+    commissionRuleVersions: [],
+    commissionCalculations: [],
+    commissionStatusHistory: [],
+    commissionAdjustments: [],
   };
 }

@@ -3,6 +3,7 @@
 import {
   Building2,
   Filter,
+  HandCoins,
   KanbanSquare,
   Plus,
   Search,
@@ -25,8 +26,8 @@ export function BoardToolbar({
 }: {
   filters: CardFilters;
   onFiltersChange: (filters: CardFilters) => void;
-  activeView: "board" | "settings";
-  onViewChange: (view: "board" | "settings") => void;
+  activeView: "board" | "commissions" | "settings";
+  onViewChange: (view: "board" | "commissions" | "settings") => void;
   onAddClosing: () => void;
 }) {
   const { data } = useBoard();
@@ -67,6 +68,13 @@ export function BoardToolbar({
               icon={KanbanSquare}
             >
               Fechamentos
+            </NavButton>
+            <NavButton
+              active={activeView === "commissions"}
+              onClick={() => onViewChange("commissions")}
+              icon={HandCoins}
+            >
+              Comissionamento
             </NavButton>
             <NavButton
               active={activeView === "settings"}

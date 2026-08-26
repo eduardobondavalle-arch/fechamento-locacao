@@ -12,7 +12,11 @@ export type Permission =
   | "cards.move"
   | "cards.archive"
   | "cards.delete"
-  | "cards.comment";
+  | "cards.comment"
+  | "commissions.view"
+  | "commissions.simulate"
+  | "commissionRules.manage"
+  | "commissions.manage";
 
 const rolePermissions: Record<Role, Permission[]> = {
   admin: [
@@ -28,6 +32,10 @@ const rolePermissions: Record<Role, Permission[]> = {
     "cards.archive",
     "cards.delete",
     "cards.comment",
+    "commissions.view",
+    "commissions.simulate",
+    "commissionRules.manage",
+    "commissions.manage",
   ],
   member: [
     "cards.create",
@@ -35,6 +43,8 @@ const rolePermissions: Record<Role, Permission[]> = {
     "cards.move",
     "cards.archive",
     "cards.comment",
+    "commissions.view",
+    "commissions.simulate",
   ],
 };
 

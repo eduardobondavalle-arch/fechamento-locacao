@@ -1,3 +1,19 @@
+import type {
+  CommissionAdjustment,
+  CommissionCalculation,
+  CommissionRule,
+  CommissionRuleVersion,
+  CommissionStatusHistory,
+} from "./commissions/types";
+
+export type {
+  CommissionAdjustment,
+  CommissionCalculation,
+  CommissionRule,
+  CommissionRuleVersion,
+  CommissionStatusHistory,
+} from "./commissions/types";
+
 export type Role = "admin" | "member";
 
 export type Profile = {
@@ -154,7 +170,7 @@ export type Activity = {
 };
 
 export type AppData = {
-  schemaVersion: 3;
+  schemaVersion: 4;
   currentUserId: string;
   profiles: Profile[];
   boards: Board[];
@@ -172,6 +188,11 @@ export type AppData = {
   comments: Comment[];
   attachments: Attachment[];
   activities: Activity[];
+  commissionRules: CommissionRule[];
+  commissionRuleVersions: CommissionRuleVersion[];
+  commissionCalculations: CommissionCalculation[];
+  commissionStatusHistory: CommissionStatusHistory[];
+  commissionAdjustments: CommissionAdjustment[];
 };
 
 export type CardFilters = {
